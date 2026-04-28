@@ -1,0 +1,44 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.5'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'ru.vk.education'
+version = '0.0.1-SNAPSHOT'
+description = 'job-tracking'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+// Обычный jar оставляем для CLI-режима
+jar {
+	enabled = true
+	manifest {
+		attributes('Main-Class': 'ru.vk.education.job.Main')
+	}
+}
+
+// Spring Boot исполняемый jar — отдельно
+bootJar {
+	mainClass = 'ru.vk.education.job.TestApp'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
