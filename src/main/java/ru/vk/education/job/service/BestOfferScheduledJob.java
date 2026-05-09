@@ -1,5 +1,6 @@
 package ru.vk.education.job.service;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.vk.education.job.BestOfferScheduler;
@@ -8,6 +9,7 @@ import ru.vk.education.job.BestOfferScheduler;
  * Запуск BestOfferScheduler через Spring scheduling.
  */
 @Component
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class BestOfferScheduledJob {
 
     private final BestOfferScheduler bestOfferScheduler;

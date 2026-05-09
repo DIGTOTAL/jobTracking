@@ -1,8 +1,9 @@
 package ru.vk.education.job;
 
-import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.Environment;
 import ru.vk.education.job.repository.EmployeeRepository;
 import ru.vk.education.job.repository.VacancyRepository;
 import ru.vk.education.job.service.SuggestionService;
@@ -17,16 +18,24 @@ public class Main {
                 .web(WebApplicationType.NONE)
                 .run(args);
 
+        Environment env = ctx.getEnvironment();
+
         // Получаем бины из контекста — теперь CLI и Web будут работать с одними и теми же репозиториями
         EmployeeRepository employeeRepository = ctx.getBean(EmployeeRepository.class);
         VacancyRepository vacancyRepository = ctx.getBean(VacancyRepository.class);
         SuggestionService suggestionService = ctx.getBean(SuggestionService.class);
 
+        // вместо встроенного CLI-кода — вызываем общий метод
+        runCli(employeeRepository, vacancyRepository, suggestionService);
+
+        ctx.close();
+    }
+
+    public static void runCli(EmployeeRepository employeeRepository,
+                              VacancyRepository vacancyRepository,
+                              SuggestionService suggestionService) {
         CommandHandler commandHandler = new CommandHandler(employeeRepository, vacancyRepository, suggestionService);
         FileService fileService = new FileService();
-
-        // Регистрируем hook для закрытия Spring-контекста при завершении программы
-        Runtime.getRuntime().addShutdownHook(new Thread(ctx::close));
 
         // Выполнить команды, сохранённые ранее (только создание сущностей)
         List<String> savedCommands = fileService.readCommands();
@@ -42,10 +51,12 @@ public class Main {
 
             boolean shouldExit = executeLine(trimmed, commandHandler, fileService);
             if (shouldExit) {
-                ctx.close();
                 return;
             }
         }
+
+        System.out.print("> ");
+        System.out.flush();
 
         try (Scanner scanner = new Scanner(System.in)) {
             while (true) {
@@ -53,7 +64,11 @@ public class Main {
                 String raw = scanner.nextLine();
                 if (raw == null) break;
                 raw = raw.trim();
-                if (raw.isEmpty()) continue;
+                if (raw.isEmpty()) {
+                    System.out.print("> ");
+                    System.out.flush();
+                    continue;
+                }
 
                 // Разбиваем одну вставку/строку на несколько команд по ключевым словам
                 String[] commands = raw.split("(?=\\buser\\b|\\bjob\\b|\\buser-list\\b|\\bjob-list\\b|\\bsuggest\\b|\\bhistory\\b|\\bexit\\b)");
@@ -83,10 +98,11 @@ public class Main {
                 }
 
                 if (shouldExitOverall) break;
+
+                System.out.print("> ");
+                System.out.flush();
             }
         }
-
-        ctx.close();
     }
 
     private static boolean executeLine(String line, CommandHandler commandHandler, FileService fileService) {
