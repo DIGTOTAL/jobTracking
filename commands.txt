@@ -1,6 +1,19 @@
--
-user Bob --skills=ml,python --exp=3
--
-job ML Engineer --company=Google --tags=ml,python --exp=2
--
-user Alice --skills=java --exp=1
+user-list
+user alice --skills=java,ml,linux --exp=2
+user-list
+job Backend_Dev --company=VK --tags=java,backend,linux --exp=1
+history
+exit
+user-list
+user-list
+job-list
+user-list
+user-list
+user-list
+user bob --exp=10 --skills=java,java,java
+job Backend_Dev --company=VK --tags=java,backend,linux --exp=1
+user-lsit
+user-list
+user-list
+user sergey --skills=java,sql,linux --exp=3
+user-list

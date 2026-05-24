@@ -30,10 +30,10 @@ class EmployeeControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Alice"));
 
-        // list
+        // list (не завязываемся на порядок)
         mockMvc.perform(get("/api/users"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Alice"));
+                .andExpect(jsonPath("$[?(@.name=='Alice')]").isNotEmpty());
 
         // get
         mockMvc.perform(get("/api/users/Alice"))
